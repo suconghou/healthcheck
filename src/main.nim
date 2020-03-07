@@ -7,21 +7,21 @@ proc check(cfg: Config): bool =
     try:
         return get(cfg.url, cfg.timeout, cfg.match)
     except:
-        echo "check error ", getCurrentExceptionMsg()
+        echo "check ", cfg.url, " error ", getCurrentExceptionMsg()
         return false
 
 proc send(title: string, cfg: Config) =
     try:
         let r = notify(buildText(title), cfg.tokens)
-        echo r
+        echo title, r
     except:
-        echo "send error ", getCurrentExceptionMsg()
+        echo "send ", title, " error ", getCurrentExceptionMsg()
 
 
 proc onStartUp(cfg: Config, cs: bool): int =
     put(cfg.file, "1")
     send("[" & cfg.name & "]正在启动", cfg)
-    return if cs: 0 else: -10
+    return if cs: 0 else: 10
 
 
 # 程序自启动以来首次健康检查通过,发送通知,并置状态为2
@@ -46,24 +46,24 @@ proc onFinalOk(cfg: Config): int =
 
 # 程序自启动以来,还未成功,无需操作,继续等待
 proc onStillStarting(cfg: Config): int =
-    return -11
+    return 11
 
 # 程序自启动以来,之前成功的,但现在失败了,置为3,并发送报警
 proc onErrorOccured(cfg: Config): int =
     put(cfg.file, "3")
     send("["&cfg.name&"]出现异常,无法访问", cfg)
-    return -12
+    return 12
 
 # 程序自上次失败后,还未恢复,要发送报警
 proc onAlreadyDead(cfg: Config): int =
     send("["&cfg.name&"]出现异常,仍未恢复", cfg)
-    return -13
+    return 13
 
 # 程序失败后后来恢复了,但现在又失败了,置为3,发送不稳定报警
 proc onFinalDead(cfg: Config): int =
     put(cfg.file, "3")
     send("["&cfg.name&"]无法访问,很不稳定", cfg)
-    return -14
+    return 14
 
 
 proc main(): int =
@@ -84,7 +84,8 @@ proc main(): int =
         of "2": return onErrorOccured(cfg)
         of "3": return onAlreadyDead(cfg)
         of "4": return onFinalDead(cfg)
-    return -20
+    return 20
 
-echo main()
+var r = main()
+quit(r)
 

@@ -28,7 +28,7 @@ proc put*(file: string, text: string) =
 
 
 proc cmd*(): Config =
-    var cfg = Config(name: "", url: "", timeout: 5000, match: "",
+    var cfg = Config(name: "", url: "", timeout: 8000, match: "",
             file: "/tmp/status", tokens: @[])
     for kind, key, val in getopt():
         case kind
