@@ -29,7 +29,7 @@ proc put*(file: string, text: string) =
 
 proc cmd*(): Config =
     var cfg = Config(name: "", url: "", timeout: 8000, match: "",
-            file: "/tmp/status", tokens: @[])
+            file: "/dev/shm/status", tokens: @[])
     for kind, key, val in getopt():
         case kind
         of cmdArgument:
