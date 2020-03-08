@@ -5,7 +5,7 @@ import utils/util
 
 proc check(cfg: Config): bool =
     try:
-        return get(cfg.url, cfg.timeout, cfg.match)
+        return get(cfg.url, int(cfg.timeout), cfg.match)
     except:
         echo "check ", cfg.url, " error ", getCurrentExceptionMsg()
         return false

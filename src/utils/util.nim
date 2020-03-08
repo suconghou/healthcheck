@@ -9,7 +9,7 @@ type Info* = object
 type Config* = object
     name*: string
     url*: string
-    timeout*: int
+    timeout*: uint
     match*: string
     file*: string
     tokens*: seq[string]
@@ -38,7 +38,7 @@ proc cmd*(): Config =
             case key
             of "name", "n": cfg.name = val
             of "url", "u": cfg.url = val
-            of "timeout", "t": cfg.timeout = parseInt(val)
+            of "timeout", "t": cfg.timeout = parseUint(val)
             of "match", "m": cfg.match = val
             of "file", "f": cfg.file = val
         of cmdEnd: assert(false) # cannot happen
