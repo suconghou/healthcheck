@@ -11,11 +11,9 @@ proc get*(url: string, timeout: int, str: string): bool =
     return false
 
 proc post(url: string, timeout: int, body: string): bool =
-    echo body
     let headers = newHttpHeaders({"Content-Type": "application/json"})
     let client = newHttpClient(timeout = timeout)
     let resp = client.request(url, HttpPost, body, headers)
-    echo resp.body
     if resp.status == Http200 or resp.status == Http204:
         return true
     return false
