@@ -12,7 +12,7 @@ proc check(cfg: Config): bool =
 
 proc send(title: string, cfg: Config) =
     try:
-        let r = notify(buildText(title), cfg.tokens)
+        let r = notify(buildText(title), tokens(cfg.tokens))
         echo title, r
     except:
         echo "send ", title, " error ", getCurrentExceptionMsg()

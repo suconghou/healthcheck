@@ -65,3 +65,14 @@ proc buildText*(title: string): string =
     }
     return $body
 
+
+proc tokens*(alias: openArray[string]): seq[string] =
+    var tokens: seq[string]
+    for t in alias:
+        case t
+        of "fed": tokens.add("5cd837267e6f4cb2c1b00de6bd73dbc24ea0adb9594f1c4ee312d4569b707959")
+        of "bed": tokens.add("1754eecae9b5bc277dcf4c436e248a1fdab3208d37dcfb70a07520a7d06fffd2")
+        of "qa": tokens.add("6feb38605b9a5c885c3350ddf87e7405b5912c482f81c34dd2a424c49c010063")
+        else: tokens.add(t)
+    return tokens
+
