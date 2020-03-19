@@ -4,7 +4,7 @@ import httpClient
 proc get*(url: string, timeout: int, str: string): bool =
     let client = newHttpClient(timeout = timeout)
     let resp = client.request(url)
-    if resp.status == Http200:
+    if resp.code == Http200:
         if str != "":
             return resp.body.contains(str)
         return true
@@ -14,7 +14,7 @@ proc post(url: string, timeout: int, body: string): bool =
     let headers = newHttpHeaders({"Content-Type": "application/json"})
     let client = newHttpClient(timeout = timeout)
     let resp = client.request(url, HttpPost, body, headers)
-    if resp.status == Http200 or resp.status == Http204:
+    if resp.code == Http200 or resp.code == Http204:
         return true
     return false
 
