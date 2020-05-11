@@ -18,9 +18,14 @@ proc send(title: string, cfg: Config) =
         echo "send ", title, " error ", getCurrentExceptionMsg()
 
 
+# 第一次检查,可能就是成功的,发送消息不一样
 proc onStartUp(cfg: Config, cs: bool): int =
-    put(cfg.file, "1")
-    send("[" & cfg.name & "]正在启动", cfg)
+    if cs:
+        put(cfg.file,"2")
+        send("[" & cfg.name & "]已启动,运行正常", cfg)
+    else:
+        put(cfg.file, "1")
+        send("[" & cfg.name & "]正在启动", cfg)
     return if cs: 0 else: 10
 
 
