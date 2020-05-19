@@ -3,6 +3,7 @@ import parseopt, strutils, os, json, times
 type Info* = object
     name: string
     time: string
+    node: string
 
 
 
@@ -47,14 +48,16 @@ proc cmd*(): Config =
 proc getinfo*(): Info =
     let name = try: readFile("/etc/hostname") except: "unknow"
     let time = now().format("yyyy-MM-dd HH:mm:ss")
-    return Info(name: name, time: time)
+    let node = getEnv("NODENAME")
+    return Info(name: name, time: time,node: node)
 
 proc buildText*(title: string): string =
     let info = getinfo()
     let text = [
         title,
-        "容器ID:"&info.name,
-        "时间:"&info.time,
+        "容器ID: "&info.name,
+        "节点: "&info.node,
+        "时间: "&info.time,
     ].join("\r\n\r\n")
     let body = %*{
         "msgtype": "markdown",
