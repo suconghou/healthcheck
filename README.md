@@ -40,7 +40,7 @@ healthcheck:
     start_period: 3s
 ```
 
-注意docker设定的timeout必须必检查程序的timeout大
+注意docker设定的timeout必须比检查程序的timeout大
 
 `interval`建议不要太小.
 
