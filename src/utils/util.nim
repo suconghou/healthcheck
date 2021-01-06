@@ -16,7 +16,7 @@ type Config* = object
     tokens*: seq[string]
 
 proc read*(path: string): string =
-    let exist = existsFile(path)
+    let exist = fileExists(path)
     var status = ""
     if exist:
         status = readFile(path)
