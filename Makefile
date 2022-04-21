@@ -8,5 +8,5 @@ release:
 
 ssl:
 	cd src && \
-	nim c -d:ssl -d:release main.nim
+	nim --gc:regions -d:release -d:ssl -d:nimDisableCertificateValidation --opt:size c main.nim
 
