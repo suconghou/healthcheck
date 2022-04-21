@@ -91,6 +91,10 @@ proc main(): int =
         of "4": return onFinalDead(cfg)
     return 20
 
-var r = main()
-quit(r)
+try:
+    var r = main()
+    quit(r)
+except:
+    echo getCurrentExceptionMsg()
+
 

@@ -39,7 +39,7 @@ proc cmd*(): Config =
             case key
             of "name", "n": cfg.name = val
             of "url", "u": cfg.url = val
-            of "timeout", "t": cfg.timeout = parseUint(val)
+            of "timeout", "t": cfg.timeout = try: parseUint(val) except: 8000
             of "match", "m": cfg.match = val
             of "file", "f": cfg.file = val
         of cmdEnd: assert(false) # cannot happen
