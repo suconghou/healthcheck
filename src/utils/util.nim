@@ -49,7 +49,7 @@ proc getinfo*(): Info =
     let name = try: readFile("/etc/hostname") except: "unknow"
     let time = now().format("yyyy-MM-dd HH:mm:ss")
     let node = getEnv("NODENAME")
-    return Info(name: name, time: time,node: node)
+    return Info(name: name, time: time, node: node)
 
 proc buildText*(title: string): string =
     let info = getinfo()
