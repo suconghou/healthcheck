@@ -39,14 +39,14 @@ proc cmd*(): Config =
             case key
             of "name", "n": cfg.name = val
             of "url", "u": cfg.url = val
-            of "timeout", "t": cfg.timeout = try: parseUint(val) except: 8000
+            of "timeout", "t": cfg.timeout = try: parseUint(val) except ValueError: 8000
             of "match", "m": cfg.match = val
             of "file", "f": cfg.file = val
         of cmdEnd: assert(false) # cannot happen
     return cfg
 
 proc getinfo*(): Info =
-    let name = try: readFile("/etc/hostname") except: "unknow"
+    let name = try: readFile("/etc/hostname") except IOError: "unknow"
     let time = now().format("yyyy-MM-dd HH:mm:ss")
     let node = getEnv("NODENAME")
     return Info(name: name, time: time,node: node)
