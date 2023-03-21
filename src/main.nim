@@ -6,7 +6,7 @@ import utils/util
 proc check(cfg: Config): bool =
     try:
         return get(cfg.url, int(cfg.timeout), cfg.match)
-    except:
+    except CatchableError:
         echo "check ", cfg.url, " error ", getCurrentExceptionMsg()
         return false
 
@@ -14,7 +14,7 @@ proc send(title: string, cfg: Config) =
     try:
         let r = notify(buildText(title), tokens(cfg.tokens))
         echo title, r
-    except:
+    except CatchableError:
         echo "send ", title, " error ", getCurrentExceptionMsg()
 
 
@@ -94,7 +94,7 @@ proc main(): int =
 try:
     var r = main()
     quit(r)
-except:
+except CatchableError:
     echo getCurrentExceptionMsg()
 
 
