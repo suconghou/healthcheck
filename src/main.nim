@@ -21,7 +21,7 @@ proc send(title: string, cfg: Config) =
 # 第一次检查,可能就是成功的,发送消息不一样
 proc onStartUp(cfg: Config, cs: bool): int =
     if cs:
-        put(cfg.file,"2")
+        put(cfg.file, "2")
         send("[" & cfg.name & "]已启动,运行正常", cfg)
     else:
         put(cfg.file, "1")

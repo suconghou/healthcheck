@@ -94,3 +94,27 @@ healthcheck:
 >
 > 20 程序错误
 >
+
+## 静态编译
+
+包含 openssl 的静态编译
+
+
+`apk add openssl-libs-static` 需要安装1.1.1版本, nim 版本1.6.10是基于alpine 3.16的，可以安装到1.1.1版本
+
+
+```
+nim --mm:orc -d:release --dynlibOverride:libssl --dynlibOverride:libcrypto --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main
+```
+
+
+```
+nim --mm:arc -d:release --dynlibOverride:libssl --dynlibOverride:libcrypto --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main
+```
+
+使用`-ffunction-sections`体积能减小一点点
+
+```
+nim --mm:arc -d:release -d:nimDisableCertificateValidation --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverride:libssl --dynlibOverride:libcrypto --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main
+```
+
