@@ -1,33 +1,76 @@
 
+import json, httpcore, strutils
 import request/http
 import utils/util
 
-
-proc check(cfg: Config): bool =
+proc check(cfg: Config, status: string): bool =
+    var body: string;
+    var passed: bool;
     try:
-        return get(cfg.url, int(cfg.timeout), cfg.match)
-    except CatchableError:
+        let (code, str) = get(cfg.url, int(cfg.timeout), cfg.info.node, cfg.info.name)
+        body = str
+        passed = code == Http200
+        if passed:
+            if cfg.match != "":
+                passed = body.contains(cfg.match)
+                return passed
+            return true
+        return false
+
+    except Exception:
         echo "check ", cfg.url, " error ", getCurrentExceptionMsg()
         return false
+    finally:
+        try:
+            # nim中，finally里return能覆写try里的return，因此我们下面不要return
+            if not cfg.report.isEmptyOrWhitespace:
+                var data = if not body.isEmptyOrWhitespace:
+                    try: parseJson(body) except Exception: %*{}
+                else: %*{}
+                var s: int
+                if passed:
+                    s = case status:
+                    of "0": 2
+                    of "1": 2
+                    of "2": 2
+                    of "3": 4
+                    of "4": 4
+                    else: 6
+                else:
+                    s = case status:
+                    of "0": 1
+                    of "1": 1
+                    of "2": 3
+                    of "3": 3
+                    of "4": 3
+                    else: 5
+                data.add("status", %s)
+                data.add("name", %cfg.name)
+                data.add("ua", %cfg.info.node)
+                data.add("refer", %cfg.info.name)
+                discard report(cfg.report, $data, cfg.info.node, cfg.info.name)
+        except Exception:
+            discard
 
 proc send(title: string, cfg: Config) =
     try:
-        let r = notify(buildText(title), tokens(cfg.tokens))
+        let r = notify(buildText(title, cfg.info), tokens(cfg.tokens))
         echo title, r
-    except CatchableError:
+    except Exception:
         echo "send ", title, " error ", getCurrentExceptionMsg()
 
 
-# 第一次检查,可能就是成功的,发送消息不一样
-proc onStartUp(cfg: Config, cs: bool): int =
-    if cs:
-        put(cfg.file, "2")
-        send("[" & cfg.name & "]已启动,运行正常", cfg)
-    else:
-        put(cfg.file, "1")
-        send("[" & cfg.name & "]正在启动", cfg)
-    return if cs: 0 else: 10
+# 第一次检查，就是成功的
+proc onFirstCheckOk(cfg: Config): int =
+    put(cfg.file, "2")
+    send("["&cfg.name&"]已启动,运行正常", cfg)
+    return 0
 
+# 第一次检查,未能校验成功，可能还未完成启动
+proc onFirstCheckStarting(cfg: Config): int =
+    put(cfg.file, "1")
+    send("["&cfg.name&"]正在启动", cfg)
+    return 10
 
 # 程序自启动以来首次健康检查通过,发送通知,并置状态为2
 proc onStartUpOk(cfg: Config): int =
@@ -73,28 +116,25 @@ proc onFinalDead(cfg: Config): int =
 
 proc main(): int =
     let cfg = cmd()
-    let cs = check(cfg)
     let status = read(cfg.file)
-    if status == "":
-        return onStartUp(cfg, cs)
+    let cs = check(cfg, status)
     if cs:
         case status
+        of "0": return onFirstCheckOk(cfg)
         of "1": return onStartUpOk(cfg)
         of "2": return onStartWorkOk(cfg)
         of "3": return onRecoverOk(cfg)
         of "4": return onFinalOk(cfg)
+        else: return 15
     else:
         case status
+        of "0": return onFirstCheckStarting(cfg)
         of "1": return onStillStarting(cfg)
         of "2": return onErrorOccured(cfg)
         of "3": return onAlreadyDead(cfg)
         of "4": return onFinalDead(cfg)
-    return 20
+        else: return 20
 
-try:
-    var r = main()
-    quit(r)
-except CatchableError:
-    echo getCurrentExceptionMsg()
+quit(main())
 
 
