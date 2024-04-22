@@ -60,7 +60,7 @@ report上报的超时时间为5秒，此上报产生的任何错误（超时，�
 
 ```json
 {
-    "status":"容器状态，同下面的文件状态",
+    "status":"容器状态，同下面的文件状态,但是为Int型",
     "name":"监控等名字，上面-n的参数值",
     "ua":"节点信息，提取自环境变量NODENAME",
     "refer":"容器ID，提取自文件/etc/hostname或HOSTNAME环境变量",
@@ -75,6 +75,7 @@ Referer: 上述refer字段值
 ```
 
 故业务返回字段不能与上述字段冲突
+业务可以返回`status`,值用来关键字匹配，后续此字段被覆盖
 
 ```
 文件状态:
@@ -127,8 +128,6 @@ Referer: 上述refer字段值
 ## 静态编译
 
 包含 openssl 的静态编译
-
-`nimlang/nim:latest-alpine-slim` nim版本1.6.12基于alpine 3.17的
 
 `apk add openssl-libs-static` 安装到的是openssl3,使用以下命令可以静态编译
 
