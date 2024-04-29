@@ -31,7 +31,7 @@ proc getinfo(): Info =
     let name = try: readFile("/etc/hostname") except IOError: getEnv("HOSTNAME")
     let time = now().format("yyyy-MM-dd HH:mm:ss")
     let node = getEnv("NODENAME")
-    return Info(name: name, time: time, node: node)
+    return Info(name: name.strip, time: time, node: node.strip)
 
 
 proc cmd*(): Config =
