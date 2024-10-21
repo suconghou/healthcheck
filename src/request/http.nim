@@ -1,21 +1,19 @@
 import strutils, httpClient
 
-proc req(kv: openArray[tuple[key: string, val: string]], ua: string = "", refer: string = ""): HttpHeaders =
+proc req(kv: openArray[tuple[key: string, val: string]], refer: string = ""): HttpHeaders =
     var headers = newHttpHeaders(kv)
-    if not ua.isEmptyOrWhitespace:
-        headers.add("User-Agent", ua)
     if not refer.isEmptyOrWhitespace:
         headers.add("Referer", refer)
     return headers
 
 proc get*(url: string, timeout: int, ua: string = "", refer: string = ""): (HttpCode, string) =
-    let client = newHttpClient(timeout = timeout)
-    let resp = client.request(url, headers = req([], ua, refer))
+    let client = newHttpClient(userAgent = ua, timeout = timeout, headers = req([], refer)) # 如果ua为空，发出去的HTTP请求无User-Agent字段
+    let resp = client.request(url, HttpGet)
     return (resp.code, resp.body)
 
 proc post(url: string, timeout: int, body: string, ua: string = "", refer: string = ""): bool =
-    let client = newHttpClient(timeout = timeout)
-    let resp = client.request(url, HttpPost, body, headers = req({"Content-Type": "application/json"}, ua, refer))
+    let client = newHttpClient(userAgent = ua, timeout = timeout, headers = req({"Content-Type": "application/json"}, refer))
+    let resp = client.request(url, HttpPost, body)
     if resp.code == Http200 or resp.code == Http204:
         return true
     return false
