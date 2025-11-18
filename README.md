@@ -134,6 +134,6 @@ Referer: 上述refer字段值
 使用`-ffunction-sections`体积能减小一点点
 
 ```
-nim --mm:arc --threads:off -d:release -d:nimDisableCertificateValidation --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverrideAll --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main
+nim --mm:arc --threads:off -d:release -d:nimDisableCertificateValidation --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverrideAll -d:useOpenSsl3 --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main
 ```
 

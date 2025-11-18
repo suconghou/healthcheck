@@ -1,7 +1,7 @@
-FROM nimlang/nim:2.2.4-alpine-regular AS build
+FROM nimlang/nim:2.2.6-alpine-regular AS build
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && apk add openssl-libs-static
 COPY src/ /
-RUN nim --mm:arc --threads:off -d:release -d:nimDisableCertificateValidation --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverrideAll --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main && \
+RUN nim --mm:arc --threads:off -d:release -d:nimDisableCertificateValidation -d:useOpenSsl3 --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverrideAll --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main && \
     strip -s main && cp -f main /check
 
 FROM alpine
