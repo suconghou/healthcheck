@@ -1,7 +1,8 @@
-FROM nimlang/nim:2.2.6-alpine-regular AS build
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && apk add openssl-libs-static
+FROM nimlang/nim:2.2.10 AS build
+RUN apt update && apt install libssl-dev -y
 COPY src/ /
-RUN nim --mm:arc --threads:off -d:release -d:nimDisableCertificateValidation -d:useOpenSsl3 --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverrideAll --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main && \
+WORKDIR /
+RUN nim --mm:orc --threads:off -d:release -d:nimDisableCertificateValidation -d:useOpenSsl3 --passL:"-ffunction-sections -fdata-sections" --passL:"-Wl,--gc-sections" --dynlibOverrideAll --passL:-s --passL:-static --passL:-lssl --passL:-lcrypto -d:ssl --opt:size c main && \
     strip -s main && cp -f main /check
 
 FROM alpine

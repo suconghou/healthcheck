@@ -1,4 +1,4 @@
-import strutils, httpClient
+import strutils, httpclient, asyncdispatch
 
 proc req(kv: openArray[tuple[key: string, val: string]], refer: string = ""): HttpHeaders =
     var headers = newHttpHeaders(kv)
@@ -7,16 +7,26 @@ proc req(kv: openArray[tuple[key: string, val: string]], refer: string = ""): Ht
     return headers
 
 proc get*(url: string, timeout: int, ua: string = "", refer: string = ""): (HttpCode, string) =
-    let client = newHttpClient(userAgent = ua, timeout = timeout, headers = req([], refer)) # 如果ua为空，发出去的HTTP请求无User-Agent字段
-    let resp = client.request(url, HttpGet)
-    return (resp.code, resp.body)
+    let client = newAsyncHttpClient(userAgent = ua, headers = req([], refer))
+    try:
+        let fut = client.request(url, HttpGet)
+        if not waitFor(fut.withTimeout(timeout)):
+            raise newException(IOError, "request timeout: " & url)
+        let resp = waitFor fut
+        return (resp.code, waitFor resp.body)
+    finally:
+        client.close()
 
 proc post(url: string, timeout: int, body: string, ua: string = "", refer: string = ""): bool =
-    let client = newHttpClient(userAgent = ua, timeout = timeout, headers = req({"Content-Type": "application/json"}, refer))
-    let resp = client.request(url, HttpPost, body)
-    if resp.code == Http200 or resp.code == Http204:
-        return true
-    return false
+    let client = newAsyncHttpClient(userAgent = ua, headers = req({"Content-Type": "application/json"}, refer))
+    try:
+        let fut = client.request(url, HttpPost, body)
+        if not waitFor(fut.withTimeout(timeout)):
+            return false
+        let resp = waitFor fut
+        return resp.code == Http200 or resp.code == Http204
+    finally:
+        client.close()
 
 proc report*(url: string, body: string, ua: string = "", refer: string = ""): bool =
     try:
